@@ -622,8 +622,5 @@ th {
   padding: 0 10px 0 10px
 }
 
-input[type=text] {
-  font-size: 16px;
-  transform: scale(0.8);
-}
+
 </style>
