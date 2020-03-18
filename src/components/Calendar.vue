@@ -25,6 +25,8 @@
         <tr v-for="(weekData,index) in calData" :key="index">
           <!-- <td class="cal-day" v-for="(dayNum,index) in weekData" :key="index"> -->
           <td class="cal-day" v-for="(dayNum,index) in weekData" :key="index" v-on:touchstart="dateClick(dayNum)" :class="{'cal-today': isToday(dayNum), active: day === dayNum}">
+
+            <span v-if="isTask(dayNum)">時間</span>
             <span v-if="isToday(dayNum)">今日</span>
             <span v-else>{{dayNum}}</span>
             <!-- <span>{{dayNum}}</span> -->
@@ -41,8 +43,8 @@
   タスク追加
   <div class="task">
     <p>
-      ■Day:
-      {{ clickedDay }}
+      ■Date:
+      {{ clickedDate }}
     </p>
 
     <p>
@@ -92,7 +94,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Day</th>
+          <th>Date</th>
           <th>Title</th>
           <th>Text</th>
           <th>Time</th>
@@ -101,37 +103,37 @@
       </thead>
 
       <tbody>
-        <tr v-for="todo in todos" class="task-list__item" v-bind:class="{ 'task-list__item--checked': todo.done }" v-if="todo.day == clickedDay">
+        <tr v-for="todo in todos" class="task-list__item" v-bind:class="{ 'task-list__item--checked': todo.done }" v-if="todo.date == clickedDate">
 
           <!-- <span v-if="clickedDay == 18"> -->
-            <!-- クリックした日付 -->
-            <td>
-              {{todo.day}}
-            </td>
+          <!-- クリックした日付 -->
+          <td>
+            {{todo.date}}
+          </td>
 
-            <!-- タイトル -->
-            <td>
-              {{ todo.title }}
-            </td>
+          <!-- タイトル -->
+          <td>
+            {{ todo.title }}
+          </td>
 
-            <!-- テキスト -->
-            <td>
-              <input type="checkbox" v-model="todo.editing">
-              <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
-              <span v-else>{{ todo.text }}</span>
-            </td>
+          <!-- テキスト -->
+          <td>
+            <input type="checkbox" v-model="todo.editing">
+            <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
+            <span v-else>{{ todo.text }}</span>
+          </td>
 
-            <!-- 時間 -->
-            <td>
-              <input type="checkbox" v-model="todo.editing2">
-              <input v-if="todo.editing2" v-model="todo.time" @keyup.enter="todo.editing2 = !todo.editing2">
-              <span v-else>{{ todo.time }}</span>
-            </td>
+          <!-- 時間 -->
+          <td>
+            <input type="checkbox" v-model="todo.editing2">
+            <input v-if="todo.editing2" v-model="todo.time" @keyup.enter="todo.editing2 = !todo.editing2">
+            <span v-else>{{ todo.time }}</span>
+          </td>
 
-            <!-- 完了/Close -->
-            <td>
-              <input type="checkbox" v-model="todo.done">
-            </td>
+          <!-- 完了/Close -->
+          <td>
+            <input type="checkbox" v-model="todo.done">
+          </td>
           <!-- </span> -->
 
         </tr>
@@ -170,13 +172,15 @@ export default {
       year: 2020,
       month: 3,
       day: -1,
-      today: '',
+
+      // ★重要
+      today: '1111-11-11',
 
       // ---------------単なるタイトル、、
       msg: 'タスク時間表示',
       // ---------------★タスクデータ
       todos: [{
-          day: 18,
+          date: '2020-3-18',
           title: '英語',
           text: 'HTTP接続/障害対応',
           time: 11,
@@ -185,7 +189,7 @@ export default {
           editing2: false
         },
         {
-          day: 18,
+          date: '2020-3-18',
           title: '数学',
           text: '客先打ち合わせ',
           time: 11,
@@ -194,7 +198,7 @@ export default {
           editing2: false
         },
         {
-          day: 18,
+          date: '2020-3-18',
           title: '理科',
           text: 'Vue.js検証',
           done: false,
@@ -203,7 +207,7 @@ export default {
           editing2: false
         },
         {
-          day: 19,
+          date: '2020-3-19',
           title: '理科',
           text: 'Vue.js検証--19',
           done: false,
@@ -215,8 +219,8 @@ export default {
 
 
       // ---------------★カレンダーでクリックした日付
-      clickedDay: '9999',
-
+      clickedDay: '0',
+      clickedDate: '0000-00-00',
 
       // ---------------タスク追加/変数（タイトル）
       newTitle: '',
@@ -347,14 +351,17 @@ export default {
     var date = new Date()
     var y = date.getFullYear()
     var m = ('0' + (date.getMonth() + 1)).slice(-2)
-    var d = ('0' + date.getDate()).slice(-2)
+    // var d = ('0' + date.getDate()).slice(-2)
+    var d = date.getDate()
 
     // yearとmonthを設定
     this.year = y
     this.month = Number(m)
 
     // 今日の日付を設定
-    this.today = y + '-' + m + '-' + d
+    // this.today = y + '-' + m + '-' + d
+    this.today = this.year + '-' + this.month + '-' + d
+    console.log("★今日の日付: " + this.today)
   },
 
 
@@ -363,14 +370,14 @@ export default {
   methods: {
     addTodo: function(event) {
 
-      let day = this.clickedDay
+      let date = this.clickedDate
       let title = this.newTitle
       let text = this.newText && this.newText.trim()
       let time = this.newTime
 
       //追加変数のチェック
-      if (!day) {
-        this.alertmsg = "Dayを選択してください"
+      if (!date) {
+        this.alertmsg = "Dayが範囲外です"
         return
       }
       if (!title) {
@@ -386,9 +393,10 @@ export default {
         return
       }
 
+      console.log(date)
       // Vue-Dataに追加
       this.todos.push({
-        day: day,
+        date: date,
         title: title,
         text: text,
         time: time,
@@ -438,30 +446,75 @@ export default {
 
     ///////////////////////////////////////////////////
     // ★カレンダー日付クリック時の処理
+    // dateClick: function(dayNum) {
+    //   if (dayNum !== '') {
+    //     this.day = dayNum
+    //   }
+    //   this.clickedDay = dayNum
+    //
+    //   console.log(this.clickedDay)
+    //   console.log(this.day)
+    //
+    //   let datenow = this.year + "-" + this.month + "-" + this.clickedDay
+    //   this.datenow = datenow
+    //   console.log(this.datenow)
+    // },
+
     dateClick: function(dayNum) {
       if (dayNum !== '') {
         this.day = dayNum
       }
       this.clickedDay = dayNum
-
       console.log(this.clickedDay)
       console.log(this.day)
+
+      let clickedDate = this.year + "-" + this.month + "-" + this.clickedDay
+      this.clickedDate = clickedDate
+      console.log(this.clickedDate)
     },
     ///////////////////////////////////////////////////
 
 
-    /**
-     * 今日かどうかの判定
-     * 年、月は現在選択しているページ
-     * 日は引数
-     */
+    ///////////////////////////////////////////////////
+    // 今日かどうかの判定
+    // 年、月は現在選択しているページ
+    // 日は引数
+    ///////////////////////////////////////////////////
     isToday: function(day) {
-      var date = this.year + "-" + this.month.toFixed(2) + "-" + day
-      if (this.today === date) {
+      // var date = this.year + "-" + this.month.toFixed(2) + "-" + day
+      var date0 = this.year + "-" + this.month + "-" + day
+      // var date = String(this.year) + String(Math.floor(this.month)) + String(day)
+
+      // console.log("今日判定: " + date0)
+      // console.log("今日判定--: " + this.today)
+
+      // if (this.today == date) {
+      // if (date0 == "2020-3-18") {
+      if (date0 == this.today) {
+        // console.log("★")
         return true
+
+      }
+      // console.log("あああああああああああ")
+      return false
+    },
+
+    // ★各日付に、タスクがあるかどうかの判定
+    isTask: function(day) {
+      var date0 = this.year + "-" + this.month + "-" + day
+
+      let i = ''
+      for (i in this.todos) {
+        // console.log(this.todos[i].date)
+
+        if (this.todos[i].date == date0) {
+          console.log(this.todos[i].date)
+          return true
+        }
       }
       return false
     },
+
 
   },
 
@@ -469,7 +522,7 @@ export default {
   // カレンダー--テンプレート生成
   computed: {
     calData: function() {
-      console.log(this.year + "-" + this.month + "のデータ作成")
+      console.log("カレンダー生成: " + this.year + "-" + this.month + "のデータ作成")
       var calData = []
 
       // 初日の曜日を取得
