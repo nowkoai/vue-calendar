@@ -3,9 +3,8 @@
 
   <!-- ######################################################## -->
   <div>
-    <h3><a href="/">タスクカレンダー/サンプル</a></h3>
+    <h3>タスクカレンダー/サンプル</h3>
   </div>
-  <!-- ######################################################## -->
 
   <!-- カレンダーヘッダ -->
   <div id="cal-header">
@@ -36,15 +35,8 @@
 
 
   <!-- ######################################################## -->
-  <!-- タスク追加 -->
-  <!-- ######################################################## -->
   タスク追加
   <div class="task">
-    <p>
-      ■Day:
-      {{ clickedDay }}
-    </p>
-
     <p>
       ■Title:
       <select v-model="newTitle">
@@ -78,21 +70,18 @@
   <button v-on:click="addTodo()">タスク追加</button>
   <!-- 追加アラート -->
   <p style="color:red;">{{ alertmsg }}</p>
-  <!-- ######################################################## -->
   <hr />
 
 
 
-  <!-- ######################################################## -->
-  <!-- ★タスク時間の、リスト表示 -->
-  <!-- ######################################################## -->
-  {{ msg }}
 
+  <!-- ######################################################## -->
+  <!-- ★リスト表示 -->
+  {{ msg }}
   <div class="task-list">
     <table class="table">
       <thead>
         <tr>
-          <th>Day</th>
           <th>Title</th>
           <th>Text</th>
           <th>Time</th>
@@ -101,59 +90,50 @@
       </thead>
 
       <tbody>
-        <tr v-for="todo in todos" class="task-list__item" v-bind:class="{ 'task-list__item--checked': todo.done }" v-if="todo.day == clickedDay">
+        <tr v-for="todo in todos" class="task-list__item" v-bind:class="{ 'task-list__item--checked': todo.done }">
 
-          <!-- <span v-if="clickedDay == 18"> -->
-            <!-- クリックした日付 -->
-            <td>
-              {{todo.day}}
-            </td>
+          <!-- タスク -->
+          <td>
+            {{ todo.title }}
+          </td>
 
-            <!-- タイトル -->
-            <td>
-              {{ todo.title }}
-            </td>
+          <!-- テキスト -->
+          <td>
+            <input type="checkbox" v-model="todo.editing">
+            <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
+            <span v-else>{{ todo.text }}</span>
+          </td>
 
-            <!-- テキスト -->
-            <td>
-              <input type="checkbox" v-model="todo.editing">
-              <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
-              <span v-else>{{ todo.text }}</span>
-            </td>
+          <!-- 時間 -->
+          <td>
+            <input type="checkbox" v-model="todo.editing2">
+            <input v-if="todo.editing2" v-model="todo.time" @keyup.enter="todo.editing2 = !todo.editing2">
+            <span v-else>{{ todo.time }}</span>
+          </td>
 
-            <!-- 時間 -->
-            <td>
-              <input type="checkbox" v-model="todo.editing2">
-              <input v-if="todo.editing2" v-model="todo.time" @keyup.enter="todo.editing2 = !todo.editing2">
-              <span v-else>{{ todo.time }}</span>
-            </td>
-
-            <!-- 完了/Close -->
-            <td>
-              <input type="checkbox" v-model="todo.done">
-            </td>
-          <!-- </span> -->
-
+          <!-- 完了/Close -->
+          <td>
+            <input type="checkbox" v-model="todo.done">
+          </td>
         </tr>
       </tbody>
     </table>
 
     <!-- 削除ボタン -->
     <button @click="removeTodo()">タスク完了→削除</button>
+    <hr />
+
+
+
+
+    <!-- ######################################################## -->
+    <!-- ★Vueデータ表示 -->
+    Vue-Data
+    <div class="json-list">
+      <p>{{ todos }}</p>
+    </div>
+
   </div>
-
-  <!-- ######################################################## -->
-  <hr />
-
-
-
-  <!-- ######################################################## -->
-  <!-- ★Vueデータ表示 -->
-  Vue-Data
-  <div class="json-list">
-    <p>{{ todos }}</p>
-  </div>
-
 
 </div>
 </template>
@@ -165,18 +145,44 @@
 export default {
   data() {
     return {
-      // ---------------カレンダー標準変数
       weekdays: ['日', '月', '火', '水', '木', '金', '土'],
       year: 2020,
       month: 3,
       day: -1,
       today: '',
 
-      // ---------------単なるタイトル、、
+      items: [{
+          task: "英語",
+          time: 11
+        },
+        {
+          task: "数学",
+          time: 12
+        },
+        {
+          task: "理科",
+          time: 13
+        }
+      ],
+      items2: [{
+          task: "英語",
+          time: 1
+        },
+        {
+          task: "数学",
+          time: 2
+        },
+        {
+          task: "理科",
+          time: 3
+        }
+      ],
+
+      awesome: false,
+
+
       msg: 'タスク時間表示',
-      // ---------------★タスクデータ
       todos: [{
-          day: 18,
           title: '英語',
           text: 'HTTP接続/障害対応',
           time: 11,
@@ -185,7 +191,6 @@ export default {
           editing2: false
         },
         {
-          day: 18,
           title: '数学',
           text: '客先打ち合わせ',
           time: 11,
@@ -194,33 +199,17 @@ export default {
           editing2: false
         },
         {
-          day: 18,
           title: '理科',
           text: 'Vue.js検証',
           done: false,
           time: 11,
           editing: false,
           editing2: false
-        },
-        {
-          day: 19,
-          title: '理科',
-          text: 'Vue.js検証--19',
-          done: false,
-          time: 11,
-          editing: false,
-          editing2: false
         }
       ],
+      newText: "",
 
-
-      // ---------------★カレンダーでクリックした日付
-      clickedDay: '9999',
-
-
-      // ---------------タスク追加/変数（タイトル）
       newTitle: '',
-      // ---------------タスク追加/選択ボックス（タイトル）
       options: [{
           id: 1,
           name: '英語'
@@ -235,13 +224,9 @@ export default {
         }
       ],
 
-      // ---------------タスク追加/変数（テキスト）
-      newText: "",
-
-      // ---------------タスク追加/変数（時間）
       newTime: '',
-      // ---------------タスク追加/選択ボックス（時間）
-      options2: [{
+      options2: [
+        {
           id: 1,
           name: 1
         },
@@ -335,14 +320,12 @@ export default {
         }
       ],
 
-      // ---------------タスク追加/エラーMSG
       alertmsg: ''
     }
   },
 
 
   ///////////////////////////////////////////////////
-  // ★今日の日付を設定
   mounted() {
     var date = new Date()
     var y = date.getFullYear()
@@ -355,6 +338,7 @@ export default {
 
     // 今日の日付を設定
     this.today = y + '-' + m + '-' + d
+
   },
 
 
@@ -363,18 +347,13 @@ export default {
   methods: {
     addTodo: function(event) {
 
-      let day = this.clickedDay
       let title = this.newTitle
       let text = this.newText && this.newText.trim()
       let time = this.newTime
 
       //追加変数のチェック
-      if (!day) {
-        this.alertmsg = "Dayを選択してください"
-        return
-      }
       if (!title) {
-        this.alertmsg = "titleを選択してください"
+        this.alertmsg = "titleを入力してください"
         return
       }
       if (!text) {
@@ -382,13 +361,12 @@ export default {
         return
       }
       if (!time) {
-        this.alertmsg = "timeを選択してください"
+        this.alertmsg = "timeを入力してください"
         return
       }
 
       // Vue-Dataに追加
       this.todos.push({
-        day: day,
         title: title,
         text: text,
         time: time,
@@ -401,7 +379,6 @@ export default {
       this.newTitle = ''
       this.newText = ''
       this.newTime = ''
-      // アラート変数のリセット
       this.alertmsg = ''
     },
 
@@ -435,19 +412,21 @@ export default {
     },
     ///////////////////////////////////////////////////
 
-
-    ///////////////////////////////////////////////////
-    // ★カレンダー日付クリック時の処理
+    //////////////////////////////////////////
+    /**
+     * カレンダー日付クリック時の処理
+     */
     dateClick: function(dayNum) {
       if (dayNum !== '') {
         this.day = dayNum
       }
-      this.clickedDay = dayNum
+      this.awesome = true
 
-      console.log(this.clickedDay)
+      console.log(this.awesome)
       console.log(this.day)
     },
-    ///////////////////////////////////////////////////
+
+    //////////////////////////////////////////
 
 
     /**
@@ -464,9 +443,6 @@ export default {
     },
 
   },
-
-  ///////////////////////////////////////////////////
-  // カレンダー--テンプレート生成
   computed: {
     calData: function() {
       console.log(this.year + "-" + this.month + "のデータ作成")
@@ -578,7 +554,6 @@ export default {
   font-size: 18px;
   padding: 0px 0px !important;
 }
-
 p {
   margin: 0px;
   padding: 0px;
@@ -620,4 +595,6 @@ td,
 th {
   padding: 0 10px 0 10px
 }
+
+
 </style>
