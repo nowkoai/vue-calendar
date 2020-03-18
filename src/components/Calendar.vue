@@ -26,8 +26,8 @@
           <!-- <td class="cal-day" v-for="(dayNum,index) in weekData" :key="index"> -->
           <td class="cal-day" v-for="(dayNum,index) in weekData" :key="index" v-on:touchstart="dateClick(dayNum)" :class="{'cal-today': isToday(dayNum), active: day === dayNum}">
 
-            <span v-if="isTask(dayNum)">時間</span>
-            <span v-if="isToday(dayNum)">今日</span>
+            <span v-if="isTask(dayNum)" style="color:blue;font-weight:bold">{{ timesum[dayNum ]}}H<br /></span>
+            <span v-if="isToday(dayNum)" style="font-weight:bold">今日</span>
             <span v-else>{{dayNum}}</span>
             <!-- <span>{{dayNum}}</span> -->
           </td>
@@ -118,16 +118,20 @@
 
           <!-- テキスト -->
           <td>
+            <label>
             <input type="checkbox" v-model="todo.editing">
             <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
             <span v-else>{{ todo.text }}</span>
+            </label>
           </td>
 
           <!-- 時間 -->
           <td>
+            <label>
             <input type="checkbox" v-model="todo.editing2">
             <input v-if="todo.editing2" v-model="todo.time" @keyup.enter="todo.editing2 = !todo.editing2">
             <span v-else>{{ todo.time }}</span>
+            </label>
           </td>
 
           <!-- 完了/Close -->
@@ -175,6 +179,7 @@ export default {
 
       // ★重要
       today: '1111-11-11',
+      timesum: [],
 
       // ---------------単なるタイトル、、
       msg: 'タスク時間表示',
@@ -376,7 +381,7 @@ export default {
       let time = this.newTime
 
       //追加変数のチェック
-      if (!date) {
+      if (!date || date.slice( -1 ) == "-") {
         this.alertmsg = "Dayが範囲外です"
         return
       }
@@ -384,10 +389,10 @@ export default {
         this.alertmsg = "titleを選択してください"
         return
       }
-      if (!text) {
-        this.alertmsg = "textを入力してください"
-        return
-      }
+      // if (!text) {
+      //   this.alertmsg = "textを入力してください"
+      //   return
+      // }
       if (!time) {
         this.alertmsg = "timeを選択してください"
         return
@@ -503,16 +508,30 @@ export default {
     isTask: function(day) {
       var date0 = this.year + "-" + this.month + "-" + day
 
+      let flag = false
+      let timesum = 0
       let i = ''
+
       for (i in this.todos) {
         // console.log(this.todos[i].date)
 
         if (this.todos[i].date == date0) {
+          flag = true
           console.log(this.todos[i].date)
-          return true
+
+          timesum = timesum + this.todos[i].time
+          console.log(timesum)
         }
       }
-      return false
+
+      this.timesum[day] = timesum
+
+      if (flag == true) {
+        return true
+      } else {
+        return false
+      }
+
     },
 
 
