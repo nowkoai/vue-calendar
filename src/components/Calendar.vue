@@ -1,7 +1,9 @@
 <template>
 <div>
+
+  <!-- ######################################################## -->
   <div>
-    <h1>カレンダーサンプル</h1>
+    <h3>タスクカレンダー/サンプル</h3>
   </div>
 
   <!-- カレンダーヘッダ -->
@@ -17,8 +19,7 @@
       <!-- 曜日を表示させる（テーブルヘッダ） -->
       <thead>
         <th v-for="(dayname,index) in weekdays" :key="index">{{dayname}}</th>
-      </thead>
-      <!-- 日付を表示させる（テーブルボディ） -->
+      </thead <!-- 日付を表示させる（テーブルボディ） -->
       <tbody>
         <tr v-for="(weekData,index) in calData" :key="index">
           <!-- <td class="cal-day" v-for="(dayNum,index) in weekData" :key="index"> -->
@@ -31,10 +32,146 @@
       </tbody>
     </table>
   </div>
+
+
+  <!-- ######################################################## -->
+  タスク追加
+  <div class="task">
+    <p>
+      ■Title:
+      <select v-model="newTitle">
+        <option disabled value="">タイトルを選択して下さい</option>
+        <option v-for="option in options" v-bind:value="option.name" v-bind:key="option.id">
+          {{ option.name }}
+        </option>
+      </select>
+      {{ newTitle }}
+    </p>
+
+    <p>
+      ■Text:
+      <input type="text" v-model="newText" placeholder="テキスト/コメントを入力ください" style="width:80%;">
+      {{ newText }}
+    </p>
+
+    <p>
+      ■Time:
+      <select v-model="newTime">
+        <option disabled value="">タイトルを選択して下さい</option>
+        <option v-for="option2 in options2" v-bind:value="option2.name" v-bind:key="option2.id">
+          {{ option2.name }}
+        </option>
+      </select>
+      {{ newTime }}
+    </p>
+  </div>
+
+  <!-- 追加ボタン -->
+  <button v-on:click="addTodo()">タスク追加</button>
+  <!-- 追加アラート -->
+  <p style="color:red;">{{ alertmsg }}</p>
+  <hr />
+
+
+  <!-- ######################################################## -->
+  <!-- ★リスト表示 -->
+  {{ msg }}
+  <div class="task-list">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Text</th>
+          <th>Time(時間)</th>
+          <th>Close</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="todo in todos" class="task-list__item" v-bind:class="{ 'task-list__item--checked': todo.done }">
+
+          <!-- タスク -->
+          <td>
+            {{ todo.title }}
+          </td>
+
+          <!-- テキスト -->
+          <td>
+            <input type="checkbox" v-model="todo.editing">
+            <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
+            <span v-else>{{ todo.text }}</span>
+          </td>
+
+          <!-- 時間 -->
+          <td>
+            <input type="checkbox" v-model="todo.editing2">
+            <input v-if="todo.editing2" v-model="todo.time" @keyup.enter="todo.editing2 = !todo.editing2">
+            <span v-else>{{ todo.time }}</span>
+          </td>
+
+          <!-- 完了/Close -->
+          <td>
+            <input type="checkbox" v-model="todo.done">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 削除ボタン -->
+    <button @click="removeTodo()">タスク完了→削除</button>
+    <hr />
+
+
+    <!-- ######################################################## -->
+    <!-- ★Vueデータ表示 -->
+    Vue-Data
+    <div class="json-list">
+      <p>{{ todos }}</p>
+    </div>
+
+  </div>
+
+  <!-- {{ index }} : {{ item }} -->
+  <!-- タスク表示 -->
+  <!-- <div v-if="awesome">
+      <div id="cal-footer">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>科目</th>
+              <th>時間（分）</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <div v-if="this.day == 18">
+              <tr v-for="(item, index) in items">
+                <td v-on:touchstart="dateClick(0)">
+                  {{ item.task }} : {{ item.time }}
+                </td>
+
+              </tr>
+            </div>
+            <div v-if="this.day == 19">
+              <tr v-for="(item, index) in items2">
+                <td>
+                  {{ item.task }} : {{ item.time }}
+                </td>
+              </tr>
+            </div>
+
+          </tbody>
+        </table>
+      </div>
+    </div> -->
+
+
 </div>
 </template>
 
 
+
+<!-- ######################################################## -->
 <script>
 export default {
   data() {
@@ -43,10 +180,183 @@ export default {
       year: 2020,
       month: 3,
       day: -1,
-      today: ''
+      today: '',
+
+      items: [{
+          task: "英語",
+          time: 11
+        },
+        {
+          task: "数学",
+          time: 12
+        },
+        {
+          task: "理科",
+          time: 13
+        }
+      ],
+      items2: [{
+          task: "英語",
+          time: 1
+        },
+        {
+          task: "数学",
+          time: 2
+        },
+        {
+          task: "理科",
+          time: 3
+        }
+      ],
+
+      awesome: false,
+
+
+      msg: 'タスク時間表示',
+      todos: [{
+          title: '英語',
+          text: 'HTTP接続/障害対応',
+          time: 11,
+          done: false,
+          editing: false,
+          editing2: false
+        },
+        {
+          title: '数学',
+          text: '客先打ち合わせ',
+          time: 11,
+          done: false,
+          editing: false,
+          editing2: false
+        },
+        {
+          title: '理科',
+          text: 'Vue.js検証',
+          done: false,
+          time: 11,
+          editing: false,
+          editing2: false
+        }
+      ],
+      newText: "",
+
+      newTitle: '',
+      options: [{
+          id: 1,
+          name: '英語'
+        },
+        {
+          id: 2,
+          name: '数学'
+        },
+        {
+          id: 3,
+          name: '理科'
+        }
+      ],
+
+      newTime: '',
+      options2: [
+        {
+          id: 1,
+          name: 1
+        },
+        {
+          id: 2,
+          name: 2
+        },
+        {
+          id: 3,
+          name: 3
+        },
+        {
+          id: 4,
+          name: 4
+        },
+        {
+          id: 5,
+          name: 5
+        },
+        {
+          id: 6,
+          name: 6
+        },
+        {
+          id: 7,
+          name: 7
+        },
+        {
+          id: 8,
+          name: 8
+        },
+        {
+          id: 9,
+          name: 9
+        },
+        {
+          id: 10,
+          name: 10
+        },
+        {
+          id: 11,
+          name: 11
+        },
+        {
+          id: 12,
+          name: 12
+        },
+        {
+          id: 13,
+          name: 13
+        },
+        {
+          id: 14,
+          name: 14
+        },
+        {
+          id: 15,
+          name: 15
+        },
+        {
+          id: 16,
+          name: 16
+        },
+        {
+          id: 17,
+          name: 17
+        },
+        {
+          id: 18,
+          name: 18
+        },
+        {
+          id: 19,
+          name: 19
+        },
+        {
+          id: 20,
+          name: 20
+        },
+        {
+          id: 21,
+          name: 21
+        },
+        {
+          id: 22,
+          name: 22
+        },
+        {
+          id: 23,
+          name: 23
+        }
+      ],
+
+      alertmsg: ''
     }
   },
 
+
+  ///////////////////////////////////////////////////
   mounted() {
     var date = new Date()
     var y = date.getFullYear()
@@ -59,12 +369,59 @@ export default {
 
     // 今日の日付を設定
     this.today = y + '-' + m + '-' + d
+
   },
 
+
+  ///////////////////////////////////////////////////
+  // ★タスク追加
   methods: {
-    /**
-     * 先月のカレンダーを取得
-     */
+    addTodo: function(event) {
+
+      let title = this.newTitle
+      let text = this.newText && this.newText.trim()
+      let time = this.newTime
+
+      //追加変数のチェック
+      if (!title) {
+        this.alertmsg = "titleを入力してください"
+        return
+      }
+      if (!text) {
+        this.alertmsg = "textを入力してください"
+        return
+      }
+      if (!time) {
+        this.alertmsg = "timeを入力してください"
+        return
+      }
+
+      // Vue-Dataに追加
+      this.todos.push({
+        title: title,
+        text: text,
+        time: time,
+        done: false,
+        editing: false,
+        editing2: false
+      })
+
+      // 追加変数のリセット
+      this.newTitle = ''
+      this.newText = ''
+      this.newTime = ''
+      this.alertmsg = ''
+    },
+
+    // ★タスク完了→削除
+    removeTodo: function(event) {
+      for (let i = this.todos.length - 1; i >= 0; i--) {
+        if (this.todos[i].done) this.todos.splice(i, 1)
+      }
+    },
+
+    ///////////////////////////////////////////////////
+    // 先月のカレンダーを取得
     setLastMonth: function() {
       if (this.month === 1) {
         this.year--
@@ -74,9 +431,7 @@ export default {
       }
       this.day = -1
     },
-    /**
-     * 翌月のカレンダーを取得
-     */
+    // 翌月のカレンダーを取得
     setNextMonth: function() {
       if (this.month === 12) {
         this.year++
@@ -86,6 +441,9 @@ export default {
       }
       this.day = -1
     },
+    ///////////////////////////////////////////////////
+
+    //////////////////////////////////////////
     /**
      * カレンダー日付クリック時の処理
      */
@@ -93,7 +451,12 @@ export default {
       if (dayNum !== '') {
         this.day = dayNum
       }
+      this.awesome = true
     },
+
+    //////////////////////////////////////////
+
+
     /**
      * 今日かどうかの判定
      * 年、月は現在選択しているページ
@@ -191,7 +554,7 @@ export default {
 
 
 /*---------------------------------------
-ヘッダのcss
+カレンダーのヘッダのcss
 ---------------------------------------*/
 #cal-header {
   font-size: 24px;
@@ -209,4 +572,54 @@ export default {
   color: white;
   display: inline-block;
 }
+
+/*---------------------------------------
+メインCSS
+---------------------------------------*/
+#cal-header {
+  font-size: 18px;
+  padding: 0px 0px !important;
+}
+p {
+  margin: 0px;
+  padding: 0px;
+}
+
+table {
+  /* width: 100%; */
+  /* text-align: left;
+  table-layout: fixed; */
+}
+
+/* .task-list {
+  padding: 0 10px;
+} */
+
+.task-list__item {
+  text-align: left;
+}
+
+.task-list__item--checked {
+  color: #85a6c6;
+}
+
+.task {
+  text-align: left;
+}
+
+.json-list {
+  text-align: left;
+}
+
+table,
+td,
+th {
+  border: 1px #cccccc solid;
+}
+
+td,
+th {
+  padding: 0 10px 0 10px
+}
+
 </style>
