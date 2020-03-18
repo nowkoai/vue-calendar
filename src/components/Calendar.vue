@@ -82,7 +82,7 @@
         <tr>
           <th>Title</th>
           <th>Text</th>
-          <th>Time(時間)</th>
+          <th>Time</th>
           <th>Close</th>
         </tr>
       </thead>
@@ -622,4 +622,8 @@ th {
   padding: 0 10px 0 10px
 }
 
+input[type=text] {
+  font-size: 16px;
+  transform: scale(0.8);
+}
 </style>
